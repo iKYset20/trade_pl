@@ -1,0 +1,49 @@
+# Konfigurasi utama trade_pl (XAUUSD, SMC + price action)
+
+symbol:
+  name: XAUUSD            # sesuaikan dengan nama simbol di broker (mis. XAUUSDm, GOLD)
+  contract_size: 100      # 1 lot = 100 oz
+  lot_step: 0.01
+  min_lot: 0.01
+  max_lot: 50.0
+  spread: 0.25            # spread rata-rata dalam harga ($) untuk backtest
+  commission_per_lot: 7.0 # komisi round-trip per lot ($)
+
+broker:
+  server_utc_offset_hours: 2   # zona waktu server MT5 (umumnya GMT+2 / GMT+3 saat DST)
+
+timeframes:
+  ltf: M5      # timeframe entry (scalping: M1/M5, intraday: M15)
+  htf: H1      # timeframe bias/tren (scalping: H1, intraday: H4)
+
+strategy:
+  name: smc_ob
+  swing_left: 3            # bar kiri untuk fraktal swing (LTF)
+  swing_right: 3           # bar kanan (= jeda konfirmasi, mencegah look-ahead)
+  htf_swing_left: 3
+  htf_swing_right: 3
+  entry_mode: proximal     # proximal (tepi OB) | mid (50% OB) - mid = SL lebih kecil, fill lebih jarang
+  sl_atr_buffer: 0.2       # buffer SL di balik OB, kelipatan ATR
+  atr_period: 14
+  min_rr: 2.0              # tolak setup dengan R:R di bawah ini
+  max_rr: 6.0              # batasi TP terlalu jauh (pakai max_rr jika target likuiditas lebih jauh)
+  min_sl: 1.0              # jarak SL minimum ($) - menghindari SL terlalu sempit kena spread/noise
+  max_sl: 8.0              # jarak SL maksimum ($)
+  ob_lookback: 10          # bar untuk mencari candle OB sebelum impuls
+  order_expiry_bars: 24    # pending order dibatalkan setelah N bar LTF
+  min_score: 3             # skor confluence minimum (lihat strategies/smc_ob.py)
+  use_sessions: true
+  sessions_utc:            # killzone (jam UTC)
+    london: ["07:00", "11:00"]
+    newyork: ["12:00", "16:00"]
+
+risk:
+  initial_equity: 1000.0
+  risk_per_trade_pct: 1.0
+  max_daily_loss_pct: 3.0
+  max_trades_per_day: 4
+  max_open_positions: 1
+
+scanner:
+  bars: 1500               # jumlah bar LTF yang diambil tiap scan
+  poll_seconds: 10
